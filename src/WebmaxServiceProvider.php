@@ -6,6 +6,7 @@ use Silex\Application;
 use Silex\ServiceProviderInterface;
 use Lcobucci\JWT\Parser;
 use Lcobucci\JWT\Signer\Hmac\Sha256;
+use Lcobucci\JWT\ValidationData;
 use League\Fractal\Manager;
 use League\Fractal\Serializer\DataArraySerializer;
 use Symfony\Component\HttpFoundation\Request;
@@ -73,6 +74,10 @@ class WebmaxServiceProvider implements ServiceProviderInterface
 
             if (!$providedToken->verify(new Sha256(), $secret)) {
                 throw new \RuntimeException('Invalid token signature', 1000);
+            }
+
+            if (!$providedToken->validate(new ValidationData())) {
+                throw new \RuntimeException('Token is no longer valid', 1001);
             }
 
             $app['wm.token'] = $providedToken;
